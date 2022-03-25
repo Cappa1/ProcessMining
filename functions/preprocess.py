@@ -22,6 +22,9 @@ def UnixTime(df, col="event time:timestamp", newcol="Unix"):
     cop = df.copy()
     unixTransform = lambda x: time.mktime(x.timetuple())
     df[newcol] = cop[col].apply(unixTransform)
+    
+def remove_timezone(dt):
+    return dt.replace(tzinfo=None)
 
 def dropper(df, lbls=["eventID", "event EventID", "timestamp"]):
     df.drop(labels=lbls, axis=1, inplace=True)
