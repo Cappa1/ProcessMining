@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn import linear_model
-
+import statsmodels.api as sm
 
 def one_hot_encode(df, column, prefix):
     """pandas one hot encoder
@@ -33,7 +33,7 @@ def encode(df):
     return df
 
 
-def time_diff(df):
+def time_diff(df, outlier):
     """Calculates time difference between i and i+1 
     within a trace and converts the value to log"""
     df['time_diff'] = (
@@ -43,6 +43,11 @@ def time_diff(df):
     df = df[df['time_diff'] >= 0]
     df['time_diff'] = np.log(df['time_diff'].replace(0, np.nan))
     df['time_diff'] = df['time_diff'].replace(np.nan, 0)
+    
+    if outlier == 'keep':
+        pass
+    elif outlier == 'remove':
+        df = df[df['time_diff']<604800]
 
     return df.drop(['event time:timestamp', 'nextTime'], axis=1)
 
@@ -59,16 +64,31 @@ def cross_validate(X, Y):
         output, model (tuple): list of true y and predicted + model
     """
     output = []
-    ts = TimeSeriesSplit(gap=0, max_train_size=None,
+    ts = TimeSeriesSplit(gap=175, max_train_size=None,
                          n_splits=5, test_size=None)
-
     folds = list(ts.split(X))
     for train_index, test_index in folds:
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
 
+        # model = sm.OLS(y_train, X_train)
+        # model = model.fit()
+        # y_pred = model.predict(X_test)
         model = linear_model.LinearRegression().fit(X_train, y_train)
         y_pred = model.predict(X_test)
         output.append((y_test, y_pred))
 
     return output, model
+
+def del_intersection(train, test):
+    lst_tr = train['case concept:name'].unique().tolist()
+    lst_te = test['case concept:name'].unique().tolist()
+
+    lst_int = set(lst_tr).intersection(lst_te)
+
+    train = train[~train['case concept:name'].isin(lst_int)]
+    test = test[~test['case concept:name'].isin(lst_int)]
+    return train, test
+
+
+
