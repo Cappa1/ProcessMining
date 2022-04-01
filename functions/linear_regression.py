@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn import linear_model
 import statsmodels.api as sm
-
+from statsmodels.formula.api import ols
 
 def one_hot_encode(df, column, prefix):
     """pandas one hot encoder
@@ -57,7 +57,7 @@ def time_diff(df, outlier):
     if outlier == 'keep':
         pass
     elif outlier == 'remove':
-        df = df[df['time_diff'] < 604800]
+        df = df[df['time_diff'] < 3600]
 
     return df.drop(['event time:timestamp', 'nextTime'], axis=1)
 
@@ -82,11 +82,10 @@ def cross_validate(X, Y):
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
 
-        # model = sm.OLS(y_train, X_train)
-        # model = model.fit()
-        # y_pred = model.predict(X_test)
+
         model = linear_model.LinearRegression().fit(X_train, y_train)
         y_pred = model.predict(X_test)
+
         output.append((y_test, y_pred))
 
     return output, model
