@@ -100,3 +100,4 @@ def del_intersection(train, test):
     train = train[~train['case concept:name'].isin(lst_int)]
     test = test[~test['case concept:name'].isin(lst_int)]
     return train, test
+
