@@ -1,6 +1,7 @@
 # ProcessMining
-This is the repository for the Data Challenge 2 project.
-Includes changes to:
+
+
+The branch includes changes to:
 
 -Preprocessing.ipynb
     
