@@ -74,7 +74,7 @@ def cross_validate(X, Y):
         output, model (tuple): list of true y and predicted + model
     """
     output = []
-    ts = TimeSeriesSplit(gap=175, max_train_size=None,
+    ts = TimeSeriesSplit(gap=5000, max_train_size=None,
                          n_splits=5, test_size=None)
 
     folds = list(ts.split(X))
